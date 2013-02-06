@@ -1,0 +1,13 @@
+{
+  "name": "google-contacts",
+  "description": "Google Contacts API for Node.js",
+  "homepage": "https://github.com/jimib/nodejs-google-contacts",
+  "repository":{ 
+      "type" : "git",
+      "url" : "https://github.com/jimib/nodejs-google-contacts"
+  },
+  "version": "0.0.1",,
+  "dependencies": {
+	"google-oauth":"0.0.2"
+  }
+}
