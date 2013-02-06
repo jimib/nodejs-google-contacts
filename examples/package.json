@@ -1,0 +1,9 @@
+{
+  "name": "google-contacts-examples",
+  "description": "Google Contacts API for Node.js Examples",
+  "homepage": "https://github.com/jimib/nodejs-google-contacts",
+  "version": "0.0.1",
+  "dependencies": {
+	"express" : "latest"
+  }
+}
