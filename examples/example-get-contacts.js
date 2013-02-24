@@ -1,5 +1,9 @@
 var gAPI = require('../index').API;
-var fs = require("fs");
+var fs = require("fs"),
+	util = require("util");
+
+var scope = 'https://www.google.com/m8/feeds/'; //contacts
+
 //put your authentication stuff in 'auth.conf'
 var auth = fs.readFile("./auth.conf", function(err, data){
 	if(data){
@@ -17,24 +21,71 @@ var auth = fs.readFile("./auth.conf", function(err, data){
 		var express = require('express');
 		var app = express();
 		var port = 4000;
-
-		app.get('/', function(req, res){
-			//get my list of contacts
-			var email = encodeURIComponent("jimi.bailey@gmail.com");
-			var urlRequest = "https://www.google.com/m8/feeds/contacts/"+email+"/full";
-			
-			api.oauth._request("GET", urlRequest, {"GData-Version" : "3.0"}, "", data.access_token, function(result){
-				res.send(result.data);
-			});
-		});
-
-		console.log("gAPI", gAPI);
-
+		var page_cb_auth = '/authenticate';
+		
 		var api = new gAPI(
 		  data.consumer_key,
 		  data.consumer_secret,
-		  'http://localhost:'+port+'/oauth2callback');
-
+		  'http://localhost:'+port+'/authenticate');
+		
+		api.gdata.setToken(data.token);
+		
+		app.get("/", function(req, res){
+		    api.gdata.getFeed(
+				'https://www.google.com/m8/feeds/contacts/default/full', 
+				{'max-results':500,'group':'http://www.google.com/m8/feeds/groups/default/base/6'},
+			    function(err, feed) {
+					res.send(feed);
+			    });
+		});
+		
+		app.get("/groups", function(req, res){
+		    api.gdata.getFeed(
+				'https://www.google.com/m8/feeds/groups/default/full', 
+				{},
+			    function(err, feed) {
+					res.send(feed);
+			    });
+		});
+		
+		app.get("/group/:groupId", function(req, res){
+		    api.gdata.getFeed(
+				'https://www.google.com/m8/feeds/groups/default/full/'+req.params.groupId, 
+				{},
+			    function(err, feed) {
+					res.send(feed);
+			    });
+		});
+		
+		app.get("/", function(req, res){
+		    api.gdata.getFeed(
+				'https://www.google.com/m8/feeds/contacts/groups/default/full', 
+				{},
+			    function(err, feed) {
+					res.send(feed);
+			    });
+		});
+		
+		app.get("/contact/:id", function(req, res){
+		    api.gdata.getFeed(
+				'https://www.google.com/m8/feeds/contacts/jimi.bailey%40gmail.com/full/'+req.params.id, 
+				{},
+			    function(err, feed) {
+					console.log("err: ", err);
+					res.send(feed);
+			    });
+		});
+		
+		app.get("/search/:search", function(req, res){
+			api.gdata.getFeed(
+				'https://www.google.com/m8/feeds/contacts/default/full', 
+				{q:req.params.search},
+			    function(err, feed) {
+					console.log(err);
+					res.send(feed);
+			    });
+		});
+		
 		app.listen(port);
 	}
 	
